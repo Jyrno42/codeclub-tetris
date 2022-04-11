@@ -163,7 +163,20 @@ def loop(surface: pygame.Surface):
             if event.type == pygame.QUIT:
                 return False
 
-            # keyboard handling goes here
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+                if valid_space(current_piece, (-1, 0), grid):
+                    current_piece.x -= 1
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                if valid_space(current_piece, (1, 0), grid):
+                    current_piece.x += 1
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+                if valid_space(current_piece, (0, 1), grid):
+                    current_piece.y += 1
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+                current_piece.rotation += 1
+
+                if not valid_space(current_piece, (0, 0), grid):
+                    current_piece.rotation -= 1
 
         shape_cells = current_piece.get_shape_on_grid()
         for (x, y) in shape_cells:
