@@ -168,10 +168,27 @@ class Piece(object):
         self.rotation = 0  # number from 0-3
 
     def get_shape_on_grid(self, offset=(0, 0)):
+        positions = []
+
         """This method should return grid coordinates of the current Piece with applied offset
         while taking into account current rotation.
         """
-        raise NotImplementedError
+
+        shape_type = self.shape[self.rotation % len(self.shape)]
+
+        for i, line in enumerate(shape_type):
+            row = list(line)
+            for j, cell in enumerate(row):
+                if cell == "*":
+                    positions.append(
+                        ((self.x + offset[0] + j), (self.y + offset[1] + i))
+                    )
+
+        for i, pos in enumerate(positions):
+            # Shift the positions to make pieces appear from center
+            positions[i] = (pos[0] - 2, pos[1] - 4)
+
+        return positions
 
 
 def get_shape():

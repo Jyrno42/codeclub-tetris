@@ -13,6 +13,7 @@ from constants import (
     screen_padding_x,
     screen_padding_y,
     screen_width,
+    levels,
 )
 from grid import Coordinate, Grid, create_grid
 from pieces import Piece, get_shape
@@ -54,7 +55,14 @@ def draw_grid_borders(surface: pygame.Surface, rows: int, columns: int):
 
 def get_empty_cells(grid: Grid) -> List[Coordinate]:
     """This method returns all empty cells as a list of tuple coordinates"""
-    raise NotImplementedError
+    empty_cells = []
+
+    for y, row in enumerate(grid):
+        for x, cell in enumerate(row):
+            if cell == (0, 0, 0):
+                empty_cells.append((x, y))
+
+    return empty_cells
 
 
 def valid_space(piece: Piece, offset: Coordinate, grid: Grid):
@@ -62,7 +70,17 @@ def valid_space(piece: Piece, offset: Coordinate, grid: Grid):
 
     Note: Parts of piece above screen are always valid
     """
-    raise NotImplementedError
+
+    empty_cells = get_empty_cells(grid)
+
+    for (x, y) in piece.get_shape_on_grid(offset=offset):
+        if y < 0:
+            continue
+
+        if (x, y) not in empty_cells:
+            return False
+
+    return True
 
 
 def game_over(locked_positions: Dict):
@@ -108,9 +126,14 @@ def clear_rows(grid: Grid, locked_positions: Dict):
 def loop(surface: pygame.Surface):
     run = True
 
+    locked_positions = {}
+
     current_piece = get_shape()
     next_piece = get_shape()
+    change_piece = False
+
     clock = pygame.time.Clock()
+    fall_time = 0
 
     score = 0
     high_score = 0
@@ -119,9 +142,22 @@ def loop(surface: pygame.Surface):
     pygame.key.set_repeat(200)
 
     while run:
-        grid = create_grid(grid_size[1], grid_size[0], locked_positions={})
+        grid = create_grid(
+            grid_size[1], grid_size[0], locked_positions=locked_positions
+        )
 
-        # TODO: measure fall time and move current piece down if needed. set flag to indicate piece change when ground reached
+        fall_time += clock.get_rawtime()
+        clock.tick()
+
+        if fall_time / 1000 > levels[0]:
+            fall_time = 0
+
+            if valid_space(current_piece, (0, 1), grid):
+                # move piece down
+                current_piece.y += 1
+
+            else:
+                change_piece = True
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -129,9 +165,21 @@ def loop(surface: pygame.Surface):
 
             # keyboard handling goes here
 
-        # TODO: Handle drawing current piece on the grid (use current_piece.get_shape_on_grid)
+        shape_cells = current_piece.get_shape_on_grid()
+        for (x, y) in shape_cells:
+            if y >= 0 and x >= 0:
+                grid[y][x] = current_piece.color
 
-        # TODO: Handle when current piece reaches ground (add score / increase difficulty)
+        if change_piece:
+            for (x, y) in shape_cells:
+                locked_positions[(x, y)] = current_piece.color
+
+            current_piece = next_piece
+            next_piece = get_shape()
+
+            change_piece = False
+
+            # TODO: check if score needs to be increased
 
         # draw window
         draw_window(surface, score, high_score, next_piece)
