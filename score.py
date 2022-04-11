@@ -3,9 +3,17 @@ def load_high_score() -> int:
 
     Note: If file does not exist or is empty 0 should be returned
     """
-    raise NotImplementedError
+
+    try:
+        with open("score.txt", "r") as h:
+            return int(h.read())
+
+    except (FileNotFoundError, ValueError):
+        return 0
 
 
 def save_high_score(score: int):
     """This method saves high-score into score.txt"""
-    raise NotImplementedError
+
+    with open("score.txt", "w+") as h:
+        h.write(f"{score}")

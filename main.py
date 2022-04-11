@@ -17,7 +17,8 @@ from constants import (
 )
 from grid import Coordinate, Grid, create_grid
 from pieces import Piece, get_shape
-from util import draw_text_middle
+from score import save_high_score, load_high_score
+from util import draw_text_middle, draw_text_bottom
 
 
 def draw_grid(surface: pygame.Surface, grid: Grid):
@@ -89,7 +90,12 @@ def game_over(locked_positions: Dict):
     The method body should check all locked positions and return True if any of them are out
     of the screen (e.g. have negative y coordinates).
     """
-    raise NotImplementedError
+
+    for x, y in locked_positions.keys():
+        if y < 0:
+            return True
+
+    return False
 
 
 def draw_window(
@@ -107,10 +113,23 @@ def draw_window(
         label, (screen_padding_x + grid_area_width / 2 - (label.get_width() / 2), 30)
     )
 
-    # TODO: draw current score
-    # TODO: draw high score
+    # draw current score
+    font = pygame.font.Font(pygame.font.get_default_font(), 30)
+    label = font.render(f"Score: {score}", True, (255, 255, 255))
+    surface.blit(label, (screen_padding_x + grid_area_width + 20, screen_padding_y))
 
-    # TODO: draw next piece
+    # draw high score
+    font = pygame.font.Font(pygame.font.get_default_font(), 30)
+    label = font.render(f"Record: {high_score}", True, (255, 255, 255))
+    surface.blit(
+        label,
+        (
+            screen_padding_x + grid_area_width + 20,
+            screen_padding_y + grid_area_height - label.get_height(),
+        ),
+    )
+
+    # TODO: draw next piece (can be done by you for example)
 
 
 def clear_rows(grid: Grid, locked_positions: Dict):
@@ -120,7 +139,28 @@ def clear_rows(grid: Grid, locked_positions: Dict):
 
     Finally, it returns the cleared row count which is used to update score.
     """
-    raise NotImplementedError
+
+    cleared_rows = 0
+    cleared_y = []
+
+    for y, row in enumerate(grid):
+        if all([x != (0, 0, 0) for x in row]):
+            cleared_rows += 1
+            cleared_y.append(y)
+
+            for key in list(locked_positions.keys()):
+                if key[1] == y:
+                    try:
+                        del locked_positions[key]
+                    except KeyError:
+                        pass
+
+    for max_y in sorted(cleared_y):
+        for (x, y) in list(locked_positions.keys()):
+            if y < max_y:
+                locked_positions[(x, y + 1)] = locked_positions.pop((x, y))
+
+    return cleared_rows
 
 
 def loop(surface: pygame.Surface):
@@ -136,7 +176,7 @@ def loop(surface: pygame.Surface):
     fall_time = 0
 
     score = 0
-    high_score = 0
+    high_score = load_high_score()
 
     # Repeat key events every 200 ms
     pygame.key.set_repeat(200)
@@ -192,7 +232,10 @@ def loop(surface: pygame.Surface):
 
             change_piece = False
 
-            # TODO: check if score needs to be increased
+            cleared_rows = clear_rows(grid, locked_positions)
+
+            if cleared_rows > 0:
+                score += cleared_rows
 
         # draw window
         draw_window(surface, score, high_score, next_piece)
@@ -200,6 +243,15 @@ def loop(surface: pygame.Surface):
         # draw grid and borders
         draw_grid(surface, grid)
         draw_grid_borders(surface, grid_size[1], grid_size[0])
+
+        if game_over(locked_positions):
+            draw_text_middle(surface, "Game over!", 60, (255, 255, 0))
+
+            if score > high_score:
+                draw_text_bottom(surface, f"High score - {score}!", 30, (255, 0, 255))
+                save_high_score(score)
+
+            run = False
 
         # tell pygame to update screen
         pygame.display.update()
