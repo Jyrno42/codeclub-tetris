@@ -13,6 +13,14 @@ pygame manually.
 2. Install dependencies with `poetry install`
 3. Start adding code to `main.py`
 
+## Play the game:
+
+1. [Install poetry](https://python-poetry.org/docs/#installation)
+2. Install dependencies with `poetry install`
+3. Run the game with `poetry run python main.py`
+
+> Note: To actually play the game without developing it check out the `final` branch - `git checkout final`.
+
 ## Branches:
 
 - `main`: the default branch without any code
