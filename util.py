@@ -1,7 +1,13 @@
 import pygame
 
-from constants import (grid_area_height, grid_area_width, screen_height,
-                       screen_padding_x, screen_padding_y, screen_width)
+from constants import (
+    grid_area_height,
+    grid_area_width,
+    screen_height,
+    screen_padding_x,
+    screen_padding_y,
+    screen_width,
+)
 
 
 def draw_text_middle(surface, text, size, color, background=True):

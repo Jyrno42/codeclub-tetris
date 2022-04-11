@@ -2,26 +2,54 @@ from typing import Dict, List
 
 import pygame
 
-from constants import (grid_area_width, screen_height, screen_padding_x,
-                       screen_width)
+from constants import (
+    border_color,
+    cell_height,
+    cell_width,
+    grid_area_height,
+    grid_area_width,
+    grid_size,
+    screen_height,
+    screen_padding_x,
+    screen_padding_y,
+    screen_width,
+)
 from grid import Coordinate, Grid, create_grid
 from pieces import Piece, get_shape
 from util import draw_text_middle
 
 
 def draw_grid(surface: pygame.Surface, grid: Grid):
-    """This function should draw the filled cells of the grid (blocks that have already reached the ground)"""
+    """This function should draw the cells of the grid"""
 
-    # Use: pygame.draw.rect(surface, color, (x1, y1, width, height), width=0) to draw each cell
-    raise NotImplementedError
+    for y, row in enumerate(grid):
+        for x, cell in enumerate(row):
+            x1 = screen_padding_x + (cell_width * x)
+            y1 = screen_padding_y + (cell_height * y)
+
+            pygame.draw.rect(surface, cell, (x1, y1, cell_width, cell_height), width=0)
 
 
 def draw_grid_borders(surface: pygame.Surface, rows: int, columns: int):
     """This function should draw the gray borders for each grid cell and a thick border
     around the entire play area"""
 
-    # Use: pygame.draw.line(surface, border_color, (x1, y1), (x2, y2))
-    raise NotImplementedError
+    sx = screen_padding_x
+    sy = screen_padding_y
+
+    for y in range(rows):
+        y1 = sy + (cell_height * y)
+        pygame.draw.line(surface, border_color, (sx, y1), (sx + grid_area_width, y1))
+
+        for x in range(columns):
+            x1 = sx + (cell_width * x)
+            pygame.draw.line(
+                surface, border_color, (x1, sy), (x1, sy + grid_area_height)
+            )
+
+    pygame.draw.rect(
+        surface, (255, 255, 255), (sx, sy, grid_area_width, grid_area_height), 5
+    )
 
 
 def get_empty_cells(grid: Grid) -> List[Coordinate]:
@@ -91,9 +119,7 @@ def loop(surface: pygame.Surface):
     pygame.key.set_repeat(200)
 
     while run:
-        grid = (
-            []
-        )  # create_grid(grid_size[1], grid_size[0], locked_positions={(1, 0): (255, 0, 0)})
+        grid = create_grid(grid_size[1], grid_size[0], locked_positions={})
 
         # TODO: measure fall time and move current piece down if needed. set flag to indicate piece change when ground reached
 
@@ -111,8 +137,8 @@ def loop(surface: pygame.Surface):
         draw_window(surface, score, high_score, next_piece)
 
         # draw grid and borders
-        # TODO: draw_grid(surface, grid)
-        # TODO: draw_grid_borders(surface, grid_size[1], grid_size[0])
+        draw_grid(surface, grid)
+        draw_grid_borders(surface, grid_size[1], grid_size[0])
 
         # tell pygame to update screen
         pygame.display.update()

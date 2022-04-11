@@ -179,4 +179,4 @@ def get_shape():
 
     Note: The default position should be top middle
     """
-    raise NotImplementedError
+    return Piece(5, 0, shape=random.choice(shapes))

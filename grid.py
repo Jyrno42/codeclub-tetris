@@ -19,5 +19,10 @@ def create_grid(rows: int, columns: int, locked_positions: Dict) -> Grid:
 
     Note: The returned grid should be created in a fashion where `len(grid) == rows` and `len(grid[1]) == columns`
     """
-    # TODO: Create grid
-    raise NotImplementedError
+
+    grid = [[(0, 0, 0) for _ in range(columns)] for _ in range(rows)]
+
+    for (x, y), color in locked_positions.items():
+        grid[y][x] = color
+
+    return grid
