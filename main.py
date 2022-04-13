@@ -171,12 +171,10 @@ def clear_rows(grid: Grid, locked_positions: Dict):
     """
 
     cleared_rows = 0
-    cleared_y = []
 
     for y, row in enumerate(grid):
         if all([x != (0, 0, 0) for x in row]):
             cleared_rows += 1
-            cleared_y.append(y)
 
             for key in list(locked_positions.keys()):
                 if key[1] == y:
@@ -185,10 +183,11 @@ def clear_rows(grid: Grid, locked_positions: Dict):
                     except KeyError:
                         pass
 
-    for max_y in sorted(cleared_y):
-        for (x, y) in list(locked_positions.keys()):
-            if y < max_y:
-                locked_positions[(x, y + 1)] = locked_positions.pop((x, y))
+            max_y = y
+
+            for (rx, ry) in sorted(list(locked_positions.keys()), key=lambda coords: coords[1], reverse=True):
+                if ry < max_y:
+                    locked_positions[(rx, ry + 1)] = locked_positions.pop((rx, ry))
 
     return cleared_rows
 
