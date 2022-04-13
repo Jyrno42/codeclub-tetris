@@ -80,7 +80,7 @@ def valid_space(piece: Piece, offset: Coordinate, grid: Grid):
     empty_cells = get_empty_cells(grid)
 
     for (x, y) in piece.get_shape_on_grid(offset=offset):
-        if y < 0:
+        if y < 0 and x >= 0 and x < grid_size[0]:
             continue
 
         if (x, y) not in empty_cells:
