@@ -1,5 +1,7 @@
 # Tetris game with python
 
+## https://github.com/Jyrno42/codeclub-tetris
+
 This is the base repository you can use to follow the process of
 developing a python tetris game. It contains various branches of the steps
 I will take during my presentation.
